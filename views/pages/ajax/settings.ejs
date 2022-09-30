@@ -1,0 +1,47 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Setting Webhook dan Authorization</h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-auto">
+                <input type="text" class="form-control" value="<%= webhook %>" name="webhook" placeholder="webhook url">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="App.updateSetting(this,'webhook')">Update</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <input type="text" class="form-control" value="<%= authorization %>" name="authorization" placeholder="Authorization">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="App.updateSetting(this,'authorization')">Update</button>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Notifikasi</h3>
+    </div>
+    <div class="card-body">        
+        <div class="row">
+            <div class="col-auto">
+                <input type="text" class="form-control" value="<%= apiToken %>" name="apiToken" placeholder="token bot telegram">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="App.updateSetting(this,'apiToken')">Update</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <input type="text" class="form-control" value="<%= chatId %>" name="chatId" placeholder="chat id telegram">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="App.updateSetting(this,'chatId')">Update</button>
+            </div>
+        </div>
+    </div>
+</div>

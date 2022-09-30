@@ -1,0 +1,202 @@
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" onclick="App.activeTab(this)" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Kirim Pesan Personal</button>
+            </li>            
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="App.activeTab(this)" id="broadcast-tab" data-bs-toggle="tab" data-bs-target="#broadcast" type="button" role="tab" aria-controls="broadcast" aria-selected="false">Kirim Pesan Massal</button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="App.activeTab(this)" id="blast-tab" data-bs-toggle="tab" data-bs-target="#blast" type="button" role="tab" aria-controls="broadcast" aria-selected="false">Kirim Pesan (Button)</button>
+            </li>            
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                <form enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="sendToGroup" id="flexSendToGroup">
+                            <label class="form-check-label" for="flexSendToGroup">
+                                Kirim ke group
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Kepada</label>
+                        <input type="text" name="contact" class="form-control" placeholder="contoh 6299877888788 atau 89898099-8808909 untuk ke group">                        
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Pesan</label>
+                        <textarea name="message"  style="min-height: 150px;" class="form-control"></textarea>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" name="media" id="mediaFile" accept="images/*,pdf,doc,docx,xls,xlsx,mp3,mp4">
+                        <label class="input-group-text" for="mediaFile">Upload</label>
+                    </div>
+                    <div class="mb-3">
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="button" class="btn btn-success" onclick="return App.sendMessage(this)">Kirim</button>
+                    </div>
+                </form> 
+            </div>
+            
+            <div class="tab-pane fade" id="broadcast" role="tabpanel" aria-labelledby="broadcast-tab">
+                <form>
+                    <div class="mb-3">
+                        <label for="interval" class="form-label">Jeda pengiriman (default 1000 milisecond)</label>
+                        <input type="number" class="form-control" name="interval" value="1000" placeholder=" dalam milisecond ">
+                    </div>                    
+                    <div class="mb-3">
+                        <label for="" class="form-label">Data Penerima</label>
+                        <div><a href="/public/assets/template/message.xlsx" target="_blank">Contoh Template</a></div>
+                        <div class="input-group">
+                            <input type="file" class="form-control" onchange="App.processData(this)">
+                            <label class="input-group-text" for="mediaFile">Upload</label>
+                        </div>                        
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Attachment</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" name="media" id="mediaFile" accept="images/*,pdf,doc,docx,xls,xlsx,mp3,mp4">
+                            <label class="input-group-text" for="mediaFile">Upload</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Preview</label>
+                        <div id="preview-message"></div>
+                    </div>                    
+                    <div class="mb-3">
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="button" class="btn btn-success" disabled onclick="App.sendBulkMessage(this)">Kirim</button>
+                    </div>
+                </form>            
+            </div>
+
+            <div class="tab-pane fade" id="blast" role="tabpanel" aria-labelledby="blast-tab">
+                <form>
+                    <div class="mb-3">
+                        <label for="interval" class="form-label">Jeda pengiriman (default 3000 milisecond)</label>
+                        <input type="number" class="form-control" value="3000" name="interval-blast" placeholder=" dalam milisecond ">
+                    </div>                    
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">Contact</label>
+                        <textarea name="contact-blast"  style="min-height: 150px;" onchange="App.updateTotalContactBlast(this)" placeholder="627878778978,62787897898,627897879" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div>
+                            <ul class="nav nav-tabs" id="myMessageTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" onclick="App.activeMessageTab(this)" id="text-tab" data-bs-toggle="tab" data-bs-target="#message-text" type="button" role="tab" aria-controls="message-text" aria-selected="true">Text</button>
+                                </li>            
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" onclick="App.activeMessageTab(this)" id="button-tab" data-bs-toggle="tab" data-bs-target="#message-button" type="button" role="tab" aria-controls="message-button" aria-selected="true">Button</button>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" onclick="App.activeMessageTab(this)" id="templatemessage-tab" data-bs-toggle="tab" data-bs-target="#message-templatemessage" type="button" role="tab" aria-controls="message-templatebutton" aria-selected="true">Template Button</button>
+                                </li>                                
+                            </ul>
+                        </div>
+                        <div class="tab-content" id="myMessageTabContent">
+                            <div class="tab-pane fade show active" id="message-text" role="tabpanel" aria-labelledby="text-tab">
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Text</label>
+                                    <textarea name="text" style="min-height: 150px;" class="form-control"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" onclick="App.setMessageJson(this, 'textMessage')">Set Message</button>
+                                </div>
+                            </div>                            
+                            <div class="tab-pane fade" id="message-button" role="tabpanel" aria-labelledby="button-tab">
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Text</label>
+                                    <textarea name="text" style="min-height: 150px;" class="form-control"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Footer</label>
+                                    <input name="footer" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Buttons</label>
+                                    <div class="input-group">
+                                        <input name="buttons[]" class="form-control button-message"> 
+                                        <div class="input-addon-append">
+                                            <span class="btn btn-default" onclick="App.addButton(this)">( + )</span>
+                                            <span class="btn btn-default" onclick="App.removeButton(this)">( - )</span>    
+                                        </div>
+                                    </div>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" onclick="App.setMessageJson(this, 'buttonMessage')">Set Message</button>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="message-templatemessage" role="tabpanel" aria-labelledby="templatemessage-tab">
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Text</label>
+                                    <textarea name="text" style="min-height: 150px;" class="form-control"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Footer</label>
+                                    <input name="footer" class="form-control">
+                                </div>                                
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Url Buttons</label>
+                                    <div class="input-group">
+                                        <input name="urlbutton[]" class="form-control button-message"  placeholder="value">
+                                        <input name="texturlbutton[]" class="form-control button-message"  placeholder="display text">
+                                        <div class="input-addon-append">
+                                            <span class="btn btn-default" onclick="App.addButton(this)">( + )</span>
+                                            <span class="btn btn-default" onclick="App.removeButton(this)">( - )</span>    
+                                        </div>
+                                    </div>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Call Buttons</label>
+                                    <div class="input-group">
+                                        <input name="callbutton[]" class="form-control button-message" placeholder="value"> 
+                                        <input name="textcallbutton[]" class="form-control button-message" placeholder="display text"> 
+                                        <div class="input-addon-append">
+                                            <span class="btn btn-default" onclick="App.addButton(this)">( + )</span>
+                                            <span class="btn btn-default" onclick="App.removeButton(this)">( - )</span>    
+                                        </div>
+                                    </div>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">Reply Buttons</label>
+                                    <div class="input-group">
+                                        <input name="quickreplybutton[]" class="form-control button-message">                                        
+                                        <div class="input-addon-append">
+                                            <span class="btn btn-default" onclick="App.addButton(this)">( + )</span>
+                                            <span class="btn btn-default" onclick="App.removeButton(this)">( - )</span>    
+                                        </div>
+                                    </div>                                    
+                                </div>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" onclick="App.setMessageJson(this, 'templateMessage')">Set Message</button>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="alert alert-info"><strong>Pesan <span id="count-blast-send">0</span></strong>  dari <span id="total-count-blast">0</span> terkirim</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Pesan</label>
+                        <textarea name="message-blast"  style="min-height: 150px;" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="button" class="btn btn-success" id="btn-blastmessage" disabled onclick="App.sendBulkMessageManual(this)">Kirim</button>
+                        <button type="button" class="btn btn-warning" onclick="if(confirm('Apakah akan menghentikan proses pengiriman pesan ?')){App.cancelSending()}">Cancel</button>
+                    </div>
+                </form>            
+            </div>            
+        </div>        
+    </div>    
+</div>

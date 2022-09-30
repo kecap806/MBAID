@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="app">
+     <header class="app-header fixed-top">	   	            
+        <div class="app-header-inner">  
+	        <div class="container-fluid py-2">
+		        <div class="app-header-content"> 
+		            <div class="row justify-content-between align-items-center">
+			        
+				    <div class="col-auto">
+					    <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-block d-xl-none" href="#">
+						    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img"><title>Menu</title><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg>
+					    </a>
+				    </div><!--//col-->
+					<div class="col-auto">
+						Status  <label class="badge bg-warning" id="lblState"><%= state %></label>
+						<button class="btn btn-primary" id="btnUp">Start Up</button>						
+						<button class="btn btn-primary" id="btnScan">Rescan QR Code</button>						
+					</div>
+	            </div><!--//app-header-content-->
+	        </div><!--//container-fluid-->
+        </div><!--//app-header-inner-->
+        <div id="app-sidepanel" class="app-sidepanel">
+			<%- include('../partials/sidebar'); %>
+		</div>
+    </header><!--//app-header-->
+    
+    <div class="app-wrapper">	    
+	    <div class="app-content pt-3 p-md-3 p-lg-4">
+		    <div class="row">
+				<div class="col-md-9">
+                    <div id="main-content"></div>
+                </div>
+				<div class="col-md-3 border pt-2">
+					<div id="logs" style="overflow-y:auto;max-height:500px;position:sticky; overflow-wrap: break-word;"></div>
+				</div>
+			</div>
+	    </div><!--//app-content-->
+	    
+	    <footer class="app-footer">
+		    <%- include('../partials/footer'); %>
+	    </footer><!--//app-footer-->	    
+    </div><!--//app-wrapper-->  
+    <!--//row-->
+    <script src="/public/assets/js/jquery.min.js"></script>    
+    <script src="/public/assets/js/app.js"></script>
+    <script src="/public/assets/js/shim.min.js"></script>
+    <script src="/public/assets/js/xlsx.full.min.js"></script>
+    <script>
+        const host = window.location.host
+        const numberWa = '<%= number %>'
+        const apikey = '<%= apikey %>'
+        let X = XLSX;
+		let dataSend;
+		let global_wb;
+
+        $.ajaxSetup({
+            headers: {
+                'x-api-token': `${apikey}`
+            }
+        });
+        
+        $(document).ready(function () {
+            const stateConnection = '<%= state %>'            
+            const client = io({query: `number=${numberWa}`})
+            client.on('message',function (_result) {                             
+                if(_result.number != numberWa ) return                
+				switch (_result.type) {                    
+                    case 'disconnect':
+                    case 'close':                        
+                        $('#logs').prepend($(`<div class="alert alert-danger">${_result.msg}</div>`))                        
+                        $('#lblState').text(_result.content)
+                        break;
+					case 'open':                        
+                        $('#logs').prepend($(`<div class="alert alert-success">${_result.msg}</div>`))                        
+                        $('#lblState').text(_result.content)
+                        break;                    
+                    default:                    
+                        $('#logs').prepend($(`<div class="alert alert-info">${_result.msg}</div>`))
+                }
+            })
+
+			$('#btnScan').click(function () {
+                window.location.href = `/${numberWa}/scan?apikey=${apikey}`
+            })
+
+			$('#btnDisconnect').click(function () {
+                $.get(`/connection/down?number=${numberWa}`, function (data) {
+					
+                }, 'json')
+            })
+
+            $('#btnUp').click(function () {
+                $.get(`/connection/up?number=${numberWa}`, function (data) {
+
+                }, 'json')
+            })
+
+            $('#app-nav-main>ul>li>a').click(function(){
+                const _href = $(this).attr('href')
+                $.get(_href, function(html){
+                    $('#main-content').html(html)
+                },'html')                
+                return false;
+            })            
+
+            if(stateConnection === 'disconnect'){
+                $('#btnUp').click();
+            }
+        });
+
+        const process_wb = (function () {			
+			let to_json = function to_json(workbook) {
+				let result = {};
+				workbook.SheetNames.forEach(function (sheetName) {
+					let roa = X.utils.sheet_to_json(workbook.Sheets[sheetName], {
+						header: 0
+					});
+					if (roa.length) result = roa;
+				});
+				return result;
+			};
+
+			return function process_wb(wb) {
+				global_wb = wb;
+				dataSend = to_json(wb);	
+                App.previewData()							
+			};
+		})();
+
+		const do_file = (function () {
+			let rABS = typeof FileReader !== "undefined" && (FileReader.prototype || {}).readAsBinaryString;
+
+			return function do_file(files) {
+				let f = files[0];
+				let reader = new FileReader();
+				reader.onload = function (e) {
+					let data = e.target.result;
+					if (!rABS) data = new Uint8Array(data);
+					process_wb(X.read(data, {
+						type: rABS ? 'binary' : 'array'
+					}));
+				};
+				if (rABS) reader.readAsBinaryString(f);
+				else reader.readAsArrayBuffer(f);
+			};
+		})();
+
+        const App = {
+            cancelPromise: false,
+            updateSetting: function(elm, type){
+                const webhook = encodeURIComponent($(elm).closest('div.row').find(`input[name=${type}]`).val())
+                $.get(`/setting/${type}/${webhook}?number=${numberWa}`, function(data){
+                    $('#logs').prepend($(`<div class="alert alert-info">${data.message}</div>`))
+                },'json')
+            },
+            cancelSending: function(){
+                this.cancelPromise = true
+            },
+            sendMessage: function(elm){
+                const _form = $(elm).closest('form')
+                const _group = _form.find('input[name=sendToGroup]').is(':checked')
+                const _sufixContact = _group ? '@g.us' : '@s.whatsapp.net'
+                const _contact = _form.find('input[name=contact]').val()+_sufixContact
+                const _message = encodeURIComponent(_form.find('textarea[name=message]').val())
+                const _media = _form.find('input[name=media]')
+                const _existFile = _media.get(0).files.length ? true : false
+                const _url =  _existFile ? `/sendmedia?number=${numberWa}` : `/sendtext?number=${numberWa}&to=${_contact}&message=${_message}`                                 
+                if(_existFile){
+                    const _data = new FormData(_form[0])                    
+                    const _ext = _media.get(0).files[0].name.split('.').pop().toLowerCase()
+                    _data.append('to',_contact)
+                    _data.append('type',_ext)
+                    $.ajax({
+                        type: "POST",
+                        enctype: 'multipart/form-data',
+                        url: _url,
+                        data: _data,
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        timeout: 80000,
+                        beforeSend: function(){ $(elm).prop('disabled',1) },
+                        success: function (data) {
+                            $('#logs').prepend($(`<div class="alert alert-info">${JSON.stringify(data)}</div>`))
+                            _form.find('button[type=reset]').click()
+                            $(elm).prop('disabled',0)
+                        },
+                        error: function (e) {
+                            $('#logs').prepend($(`<div class="alert alert-danger">${e}</div>`))    
+                            $(elm).prop('disabled',0)
+                        },
+                        dataType: 'json'
+                    });
+                    
+                }else{
+                    $.get(_url,{}, function(data){
+                        $('#logs').prepend($(`<div class="alert alert-info">${JSON.stringify(data)}</div>`))
+                        _form.find('button[type=reset]').click()
+                    },'json')
+                }
+                return false
+            },
+            
+            processData: function(elm){
+                do_file(elm.files)
+            },
+
+            previewData: function(){
+                if(dataSend !== undefined){
+                    const header = dataSend[0]
+                    const table = []
+                    if(header.nomer && header.pesan && header.to){
+                        table.push(`<table class="table table-bordered">
+                                        <thead>
+                                            <tr><th>No</th><th>Telepon</th><th>Pesan</th><th>Status Kirim</th></tr>
+                                        </thead>
+                                        <tbody>`)
+                        
+                        dataSend.forEach((element, index) => {
+                            table.push(`
+                                <tr id="item-${index}">
+                                    <td>${index + 1}</td>
+                                    <td>${element.nomer}</td>                                    
+                                    <td>${element.pesan}</td>
+                                    <td class="status">-</td>
+                                </tr>
+                            `)                            
+                        });
+                        table.push(`</tbody></table>`)
+                        $('#preview-message').html(`<div>Total <strong>${dataSend.length}</strong> data, Terkirim <strong><span id="count-sentitem">0</span></strong></div>`+table.join(''))
+                        $('#preview-message').closest('form').find('button[type=button]').prop('disabled',0)
+                    }else{
+                        $('#preview-message').html('<div class="alert alert-danger">Kolom nomer, to atau pesan tidak ditemukan. Cek kembali file yang anda upload</div>')
+                    }                    
+                }                            
+            },
+
+            sendBulkMessage: function(elm){
+                // uploadFile
+                const _form = $(elm).closest('form')
+                const _media = _form.find('input[name=media]')
+                const _existFile = _media.get(0).files.length ? true : false
+                
+                if(_existFile){
+                    const _url = `/uploadFile?number=${numberWa}`
+                    const _data = new FormData(_form[0])
+                    const _ext = _media.get(0).files[0].name.split('.').pop().toLowerCase()                    
+                    _data.append('type',_ext)
+                    $.ajax({
+                        type: "POST",
+                        enctype: 'multipart/form-data',
+                        url: _url,
+                        data: _data,
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        timeout: 80000,
+                        beforeSend: function(){ },
+                        success: function (data) {
+                            App.sendingBulkMessage(elm, data.message)        
+                        },
+                        error: function (e) {
+                            $('#logs').prepend($(`<div class="alert alert-danger">${e}</div>`))                            
+                        },
+                        dataType: 'json'
+                    });                    
+                }else{
+                    App.sendingBulkMessage(elm, null)
+                }
+            },
+            
+            sendingBulkMessage: function(elm, _media){
+                const _form = $(elm).closest('form')
+                const _jeda = parseInt(_form.find('input[name=interval]').val()) || 0
+                let promise = Promise.resolve()
+                let _url, _contactWa, _message, _messageMedia
+                App.cancelPromise = false
+                dataSend.forEach((element, index) => {                    
+                    promise = promise.then(() => {
+                        _url = `/sendMessage?number=${numberWa}`
+                        _contactWa = element.to
+                        _message = {to: _contactWa, message: {text: element.pesan} }
+                        if(_media){
+                            console.log(_media)
+                            if(_media['image'] !== undefined){
+                                _media['caption'] = element.pesan
+                                _message = {to: _contactWa, message: _media }
+                            }else{
+                                /** kirim media sebagai pesan tersendiri */
+                                _messageMedia = {to: _contactWa, message: _media }
+                                $.post(_url,_messageMedia, function(data){                                    
+                                    $('#logs').prepend($(`<div class="alert alert-info">${JSON.stringify(data.message)}</div>`))
+                                },'json')
+                            }
+                        }
+                        
+                        $.post(_url,_message, function(data){
+                            if(data.status){
+                                App.updateStatusKirim(index, 'terkirim')
+                            }else{
+                                App.updateStatusKirim(index, 'gagal')
+                            }                         
+                            $('#logs').prepend($(`<div class="alert alert-info">${JSON.stringify(data.message)}</div>`))
+                        },'json')
+
+                        if(App.cancelPromise){
+                            console.log('cancel by user')
+                            return Promise.reject( new Error('user cancelled'))
+                        }else{
+                            return new Promise(function (resolve) {
+                                setTimeout(resolve, _jeda)
+                            })
+                        }                        
+                    })
+                })
+            },
+
+            sendBulkMessageManual: function(elm){
+                const _form = $(elm).closest('form')
+                const _jeda = parseInt(_form.find('input[name=interval-blast]').val()) || 0
+                if(_jeda <= 0){
+                    alert('jeda interval pengiriman harus > 0')
+                    return 
+                }
+                let promise = Promise.resolve()
+                let _url, _message, _contactWa
+                let _contacts = _form.find('textarea[name=contact-blast]').val()
+                let _messageBlast = _form.find('textarea[name=message-blast]').val()
+                let _responseText
+                App.cancelPromise = false
+                $(elm).prop('disabled',1)
+                _contacts.split(',').forEach((element, index) => {                    
+                    promise = promise.then(() => {
+                        _url = `/sendMessage?number=${numberWa}`
+                        _contactWa = element.trim()+'@s.whatsapp.net'
+                        _message = {to: _contactWa, message: JSON.parse(_messageBlast) }
+                        $.post(_url,_message, function(data){
+                            if(data.status){
+                                App.updateProgressBlast()
+                                _responseText = `pesan ke nomer ${element} sukses terkirim`
+                                $('#logs').prepend($(`<div class="alert alert-success">${_responseText}</div>`))
+                            }else{
+                                _responseText = `pesan ke nomer ${element} gagal terkirim`
+                                $('#logs').prepend($(`<div class="alert alert-danger">${_responseText}</div>`))
+                            }                         
+                            
+                        },'json')
+
+                        if(App.cancelPromise){
+                            console.log('cancel by user')
+                            return Promise.reject( new Error('user cancelled'))
+                        }else{
+                            return new Promise(function (resolve) {
+                                setTimeout(resolve, _jeda)
+                            })
+                        }                                                
+                    }).then(() => {
+                        _form.find('textarea[name=contact-blast]').val('')
+                    })
+                })
+            },
+
+            setMessageJson: function(elm, tipe){
+                const _parent = $(elm).closest('.tab-pane')
+                const _text = _parent.find('textarea[name=text]').val()
+                const _footer = _parent.find('input[name=footer]').val()
+                let _json = {'text': _text}, _name, _val, _displayText, _indexButton = 1
+                switch(tipe){
+                    case 'buttonMessage':
+                        _json['buttons'] = []
+                        _json['footer'] = _footer
+                        _parent.find('input[name="buttons[]"]').each(function(){
+                            _json['buttons'].push({buttonId: _indexButton++,buttonText: {displayText: $(this).val()}, type: 1})
+                        })
+                        break;
+                    case 'templateMessage':
+                        _json['templateButtons'] = []
+                        _json['footer'] = _footer
+                        _parent.find('input[name="urlbutton[]"]').each(function(elm, index){   
+                            _displayText = $(this).next('input').val()                            
+                            if(_displayText == ''){
+                                _displayText = $(this).val()
+                            }
+                            console.log(_displayText)
+                            if($(this).val() !== ''){
+                                _json['templateButtons'].push({index: _indexButton++,urlButton: {displayText: _displayText, url: $(this).val()}})
+                            }        
+                        })
+                        _parent.find('input[name="callbutton[]"]').each(function(elm, index){                            
+                            _displayText = $(this).next('input').val() 
+                            if(_displayText == ''){
+                                _displayText = $(this).val()
+                            }
+                            if($(this).val() !== ''){                            
+                                _json['templateButtons'].push({index: _indexButton++,callButton: {displayText: _displayText, url: $(this).val()}})
+                            }                            
+                        })
+                        _parent.find('input[name="quickreplybutton[]"]').each(function(){                            
+                            if($(this).val() !== ''){
+                                _json['templateButtons'].push({index: _indexButton++,quickReplyButton: {displayText: $(this).val(), id: `quick-reply-button-${_indexButton}` }})
+                            }                         
+                        })
+                        break;
+                }
+                $('textarea[name=message-blast]').val(JSON.stringify(_json))
+
+            },
+
+            updateTotalContactBlast: function(elm){
+                const _contact = $(elm).val().split(',')
+                if(_contact.length){
+                    $(`#count-blast-send`).text(0)
+                    $('#total-count-blast').text(_contact.length)
+                    $('#btn-blastmessage').prop('disabled',0)
+                }
+            },
+
+            updateProgressBlast: function(){                
+                $(`#count-blast-send`).text(parseInt($(`#count-blast-send`).text())+1)
+            },
+
+            addButton: function(elm){
+                const _parent = $(elm).closest('.input-group')
+                _parent.clone().insertAfter(_parent)
+            },
+
+            removeButton: function(elm){
+                const _parent = $(elm).closest('.input-group')
+                _parent.remove()
+            },
+
+            updateStatusKirim: function(index, status){
+                $(`tr#item-${index}`).find('td.status').html(status)
+                $(`#count-sentitem`).text(parseInt($(`#count-sentitem`).text())+1)
+            },
+            
+            activeTab: function(elm){
+                const _elm = $(elm)
+                const _siblingButton = _elm.closest('li').siblings('li').find('button')
+                const _target = $(_elm.data('bs-target'))
+                if(!_elm.hasClass('active')){
+                    _siblingButton.removeClass('active')
+                    $('#myTabContent>div.tab-pane').not(_target).removeClass('active show')
+                    _target.addClass('active show')
+                    _elm.addClass('active')
+                }
+            },
+
+            activeMessageTab: function(elm){
+                const _elm = $(elm)
+                const _siblingButton = _elm.closest('li').siblings('li').find('button')
+                const _target = $(_elm.data('bs-target'))
+                if(!_elm.hasClass('active')){
+                    _siblingButton.removeClass('active')
+                    $('#myMessageTabContent>div.tab-pane').not(_target).removeClass('active show')
+                    _target.addClass('active show')
+                    _elm.addClass('active')
+                }
+            }
+
+        }
+    </script>
+</body>
+
+</html>

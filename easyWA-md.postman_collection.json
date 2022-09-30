@@ -1,0 +1,612 @@
+{
+	"info": {
+		"_postman_id": "51ead1a0-3628-4357-bf42-2b94d9b6c060",
+		"name": "easyWA-md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "message",
+			"item": [
+				{
+					"name": "button message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \"to\": \"120363023432962472@g.us\",\n    \"message\" :{\n    \"text\": \"Hi it's button message\",\n    \"footer\": \"Hello World\",\n    \"buttons\": [\n        {\"buttonId\": \"id1\", \"buttonText\": {\"displayText\": \"Button 1\"}, \"type\": 1},\n        {\"buttonId\": \"id2\", \"buttonText\": {\"displayText\": \"Button 2\"}, \"type\": 1},\n        {\"buttonId\": \"id3\", \"buttonText\": {\"displayText\": \"Button 3\"}, \"type\": 1}        \n    ],\n    \"headerType\": 1\n}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "button template message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \"to\": \"120363023432962472@g.us\",\n    \"message\" :{\n    \"text\": \"Hi it's a template message\",\n    \"footer\": \"Hello World\",\n    \"templateButtons\": [\n        {\"index\": 1, \"urlButton\": {\"displayText\": \"⭐ Star Baileys on GitHub!\", \"url\": \"https://github.com/adiwajshing/Baileys\"}},\n    {\"index\": 2, \"callButton\": {\"displayText\": \"Call me!\", \"phoneNumber\": \"+1 (234) 5678-901\"}},\n    {\"index\": 3, \"quickReplyButton\": {\"displayText\": \"This is a reply, just like normal buttons!\", \"id\": \"id-like-buttons-message\"}}\n    ]\n}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "button list message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \"to\": \"120363023432962472@g.us\",\n    \"message\" :{\n        \"text\": \"This is a list\",\n        \"footer\": \"nice footer, link: https://google.com\",\n        \"title\": \"Amazing boldfaced list title\",\n        \"buttonText\": \"Required, text on the button to view the list\",\n        \"sections\": [\n            {\"title\": \"Section 1\",\n            \"rows\": [\n                {\"title\": \"Option 1\", \"rowId\": \"option1\"},\n                {\"title\": \"Option 2\", \"rowId\": \"option2\", \"description\": \"This is a description\"}\n            ]\n            },\n        {\n            \"title\": \"Section 2\",\n            \"rows\": [\n                {\"title\": \"Option 3\", \"rowId\": \"option3\"},\n                {\"title\": \"Option 4\", \"rowId\": \"option4\", \"description\": \"This is a description V2\"}\n            ]\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "text message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"to\": \"120363023432962472@g.us\", \"message\": { \"text\": \"kirimkan sekarang\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"to\": \"120363023432962472@g.us\",\"message\": {\"image\": {\"url\": \"https://i0.wp.com/www.phptherightway.com/images/banners/rect-180x150.png\"}, \"mimetype\": \"image/png\", \"fileName\": \"example.png\", \"caption\": \"This is image\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send document pdf",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"to\": \"120363023432962472@g.us\",\"message\": {\"document\": {\"url\": \"http://pslb3.menlhk.go.id/internal/uploads/pengumuman/1545111808_contoh-pdf.pdf\"}, \"mimetype\": \"application/pdf\", \"fileName\": \"1545111808_contoh-pdf.pdf\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send audio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"to\": \"120363023432962472@g.us\",\"message\": {\"audio\": {\"url\": \"https://archive.org/download/testmp3testfile/mpthreetest.mp3\"}, \"mimetype\": \"audio/mp4\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/sendmessage?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmessage"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send video",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"to\": \"120363023432962472@g.us\",\"message\": {\"video\": {\"url\": \"https://archive.org/download/SampleVideo1280x7205mb/SampleVideo_1280x720_5mb.mp4\"}, \"mimetype\": \"video/mp4\"}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "103.172.204.121:5000/6285733659400/sendcustom",
+							"host": [
+								"103",
+								"172",
+								"204",
+								"121"
+							],
+							"port": "5000",
+							"path": [
+								"6285733659400",
+								"sendcustom"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "text message using get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/sendtext?number=6285733659400&to=6282333808291@s.whatsapp.net&message=percobaan kirim text",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendtext"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								},
+								{
+									"key": "to",
+									"value": "6282333808291@s.whatsapp.net"
+								},
+								{
+									"key": "message",
+									"value": "percobaan kirim text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendmedia using upload form",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "to",
+									"value": "6282333808291@s.whatsapp.net",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "pdf",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "/home/ahmad/Dokumen/aqiqoh2.pdf"
+								},
+								{
+									"key": "message",
+									"value": "tes",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:3000/sendmedia?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sendmedia"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "checknumber",
+			"item": [
+				{
+					"name": "check number is exist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/checknumber?number=6285733659400&check=6282333808291@s.whatsapp.net",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"checknumber"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								},
+								{
+									"key": "check",
+									"value": "6282333808291@s.whatsapp.net"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "connection",
+			"item": [
+				{
+					"name": "check status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/connection/status?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"connection",
+								"status"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "connect",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/connection/up?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"connection",
+								"up"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "group",
+			"item": [
+				{
+					"name": "create group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "easywa-group-test",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:3000/group/new?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"new"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add member",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupid\": \"120363023432962472@g.us\", \"member\" : [\"6282333808291@s.whatsapp.net\"], \"action\": \"add\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/group/updatemember?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"updatemember"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove member",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupid\": \"120363023432962472@g.us\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/group/metadata?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"metadata"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "metadata",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupid\": \"120363023432962472@g.us\", \"member\" : [\"6282333808291@s.whatsapp.net\"], \"action\": \"remove\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/group/updatemember?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"updatemember"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/group/list?number=6285733659400",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"list"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "6285733659400"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

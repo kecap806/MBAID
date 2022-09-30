@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>    
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="app app-login container-fluid">
+    <div class="row g-0 app-auth-wrapper">
+        <div class="col-7 col-md-7 col-lg-7 auth-main-col text-center p-2">
+            <div class="d-flex flex-column align-content-end">
+                <div class="app-auth-body mx-auto">
+                    <div class="app-auth-branding mb-1"><a class="app-logo" href="index.html"><img
+                                class="logo-icon me-2" src="/public/assets/images/app-logo.svg" alt="logo"></a></div>
+                    <h2 class="auth-heading text-center mb-2">easyWA gateway</h2>
+                    <div class="auth-form-container text-start">                        
+                        <div class="text-center mb-1">
+                            <div>Have account</div>
+                            <button type="button" id="btnUp" class="btn app-btn-primary w-100 theme-btn mx-auto">Start up whatsapp</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="pt-2 text-center">
+                                    <div class="border" style="min-height:280px" id="qrcode">
+                                        <span class="">QR Code Here</span>
+                                    </div>
+                                    <div>Scan me</div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="text-center">
+                                    <button type="button" id="btnScan" class="btn app-btn-primary w-100 theme-btn mx-auto">Generate QR</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <!--//auth-form-container-->
+
+                </div>
+                <!--//auth-body-->
+                
+            </div>
+            <!--//flex-column-->
+        </div>
+        <div class="col-5 col-md-5 col-lg-5 auth-main-col text-center p-2">
+            <div id="logs" class="border">
+            
+            </div>
+        </div>
+        <!--//auth-main-col-->
+        
+        
+        <footer class="app-footer">
+		    <%- include('../partials/footer'); %>
+	    </footer><!--//app-footer-->
+    </div>
+    <!--//row-->
+    <script src="/public/assets/js/jquery.min.js"></script>
+    <script>        
+        const numberWa = '<%= number %>'
+        const apikey = '<%= apikey %>'        
+        $(document).ready(function () {    
+            $.ajaxSetup({
+                headers: {
+                    'x-api-token': `${apikey}`
+                }
+            });        
+            
+            const client = io({query: `number=${numberWa}`})
+            client.on('message',function (_result) {
+                if(_result.number != numberWa ) return
+                switch (_result.type) {
+                    case 'qr':
+                        $('#qrcode').html(`<img src="${_result.content}">`)
+                        $('#qrcode').show()
+                        $('#logs').append($(`<div>${_result.msg}</div>`))
+                        $('#btnScan').hide()
+                        break;
+                    case 'authenticated':
+                    case 'ready':
+                        $('#qrcode').hide()
+                        $('#logs').append($(`<div>${_result.msg}</div>`))
+                        window.location.href = `/${numberWa}/panel`
+                        
+                        break;
+                    case 'timeout':
+                    case 'failed':
+                        $('#qrcode').empty()
+                        $('#btnScan').show()
+                        $('#logs').append($(`<div>${_result.msg}</div>`))
+                        break;
+                    default:
+                        $('#logs').append($(`<div>${_result.msg}</div>`))
+                }
+            })
+            $('#btnScan').click(function () {
+                $.get(`/connection/new?number=${numberWa}`, function (data) {
+
+                }, 'json')
+            })
+
+            $('#btnUp').click(function () {
+                $.get(`/connection/up?number=${numberWa}`, function (data) {
+                    window.location.href = `/${numberWa}/panel?apikey=${apikey}`
+                }, 'json')                
+            })
+            
+        });
+    </script>
+</body>
+
+</html>
